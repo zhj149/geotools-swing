@@ -98,6 +98,9 @@ public class ZoomOutTool extends AbstractZoomTool implements DragBoxMapPaintList
 		Envelope2D newMapArea = new Envelope2D();
 		newMapArea.setFrameFromCenter(mapPos, corner);
 		getMapPane().setDisplayArea(newMapArea);
+		//然后平移到鼠标操作点
+		getMapPane().move((int) (ev.getX() - paneArea.getWidth() / 2),
+				(int) (ev.getY() - paneArea.getHeight() / 2));
 	}
 
 	/**

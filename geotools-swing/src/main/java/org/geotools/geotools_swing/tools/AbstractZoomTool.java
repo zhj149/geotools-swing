@@ -109,7 +109,6 @@ public abstract class AbstractZoomTool extends CursorTool {
 				Rectangle paneArea = mapPane.getVisibleRectangle();
 				// 不知道这个是不是传说中的获取当前坐标点
 				DirectPosition2D mapPos = ev.getWorldPos();
-
 				double scale = mapPane.getWorldToScreenTransform().getScaleX();
 				double newScale = scale * actualZoom;
 
@@ -119,6 +118,10 @@ public abstract class AbstractZoomTool extends CursorTool {
 				Envelope2D newMapArea = new Envelope2D();
 				newMapArea.setFrameFromCenter(mapPos, corner);
 				mapPane.setDisplayArea(newMapArea);
+
+				//然后平移到鼠标操作点
+				getMapPane().move((int) (ev.getX() - paneArea.getWidth() / 2),
+						(int) (ev.getY() - paneArea.getHeight() / 2));
 
 			}
 		} catch (Exception ex) {

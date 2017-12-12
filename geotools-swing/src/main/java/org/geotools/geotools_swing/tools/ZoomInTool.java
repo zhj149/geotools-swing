@@ -84,13 +84,13 @@ public class ZoomInTool extends AbstractZoomTool implements DragBoxMapPaintListe
 	 * Zoom in by the currently set increment, with the map centred at the
 	 * location (in world coords) of the mouse click
 	 * 
-	 * @param e
+	 * @param ev
 	 *            map mapPane mouse event
 	 */
 	@Override
-	public void onMouseClicked(MapMouseEvent e) {
+	public void onMouseClicked(MapMouseEvent ev) {
 		Rectangle paneArea = getMapPane().getVisibleRectangle();
-		DirectPosition2D mapPos = e.getWorldPos();
+		DirectPosition2D mapPos = ev.getWorldPos();
 
 		double scale = getMapPane().getWorldToScreenTransform().getScaleX();
 		double newScale = scale * zoom;
@@ -101,6 +101,9 @@ public class ZoomInTool extends AbstractZoomTool implements DragBoxMapPaintListe
 		Envelope2D newMapArea = new Envelope2D();
 		newMapArea.setFrameFromCenter(mapPos, corner);
 		getMapPane().setDisplayArea(newMapArea);
+		//然后平移到鼠标操作点
+		getMapPane().move((int) (ev.getX() - paneArea.getWidth() / 2),
+				(int) (ev.getY() - paneArea.getHeight() / 2));
 	}
 
 	/**
