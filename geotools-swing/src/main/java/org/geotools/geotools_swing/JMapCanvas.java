@@ -121,7 +121,7 @@ public class JMapCanvas extends JPanel implements MapPane, MapLayerListListener,
 	/**
 	 * 已经绘制好的地图偏移量
 	 */
-	private Point offsetImage;
+	private volatile Point offsetImage = new Point(0, 0);
 
 	/**
 	 * 鼠标操作事件包装对象
@@ -158,7 +158,6 @@ public class JMapCanvas extends JPanel implements MapPane, MapLayerListListener,
 		// 实现画布
 		doSetRenderer(new StreamingRenderer());
 		this.setMapContent(content);
-		offsetImage = new Point();
 
 		mapMouseEventDispatcher = new DefaultMapMouseEventDispatcher(this);
 		this.addMouseListener(mapMouseEventDispatcher);
@@ -772,7 +771,6 @@ public class JMapCanvas extends JPanel implements MapPane, MapLayerListListener,
 		}
 		
 		this.repaint();
-
 	}
 	
 	/**
@@ -781,13 +779,14 @@ public class JMapCanvas extends JPanel implements MapPane, MapLayerListListener,
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		
 		if (this.baseImage != null) {
 			g.drawImage(baseImage, offsetImage.x, offsetImage.y, null);
 		}
 
 		if (this.paintListeners != null && !this.paintListeners.isEmpty()) {
 			for (MapPaintListener listener : this.paintListeners) {
-				listener.afterPaint((Graphics2D) g);
+				listener.afterPaint((Graphics2D) g , offsetImage.x , offsetImage.y);
 			}
 		}
 	}

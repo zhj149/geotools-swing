@@ -41,7 +41,7 @@ public interface DragBoxMapPaintListener extends MapPaintListener {
 	 * @param g2d
 	 */
 	@Override
-	public default void afterPaint(Graphics2D g2d) {
+	public default void afterPaint(Graphics2D g2d, int dx, int dy) {
 		if (g2d != null && this.isDrag()) {
 			Color color = g2d.getColor();
 			g2d.setColor(Color.GREEN);
