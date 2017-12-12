@@ -17,7 +17,7 @@ public interface MapPaintListener extends EventListener {
 	 * @param g2d
 	 */
 	public default void beforePaint(Graphics2D g2d) {
-	};
+	}
 
 	/**
 	 * 地图绘制完成后执行的操作 直接绘制到画布上的方法
