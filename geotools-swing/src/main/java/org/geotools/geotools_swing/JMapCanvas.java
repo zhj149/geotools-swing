@@ -1,8 +1,9 @@
 package org.geotools.geotools_swing;
 
-import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
@@ -13,6 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import javax.swing.JPanel;
 
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.jts.JTS;
@@ -42,14 +45,13 @@ import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
-
 /**
  * javafx实现的geotools画布对象
  * 
  * @author sam
  *
  */
-public class JMapCanvas extends Canvas implements MapPane, MapLayerListListener, MapBoundsListener {
+public class JMapCanvas extends JPanel implements MapPane, MapLayerListListener, MapBoundsListener {
 
 	private static final long serialVersionUID = 9110483825678702033L;
 
@@ -117,6 +119,11 @@ public class JMapCanvas extends Canvas implements MapPane, MapLayerListListener,
 	private Graphics2D memory2D;
 
 	/**
+	 * 已经绘制好的地图偏移量
+	 */
+	private Point offsetImage;
+
+	/**
 	 * 鼠标操作事件包装对象
 	 */
 	protected MapMouseEventDispatcher mapMouseEventDispatcher;
@@ -125,11 +132,6 @@ public class JMapCanvas extends Canvas implements MapPane, MapLayerListListener,
 	 * 当前的鼠标操作工具
 	 */
 	private CursorTool cursorTool;
-
-	/**
-	 * 二维画布封装
-	 */
-	protected Graphics2D g2d;
 
 	/**
 	 * 缓存起来的世界到屏幕转换的转换对象
@@ -156,8 +158,13 @@ public class JMapCanvas extends Canvas implements MapPane, MapLayerListListener,
 		// 实现画布
 		doSetRenderer(new StreamingRenderer());
 		this.setMapContent(content);
+		offsetImage = new Point();
 
 		mapMouseEventDispatcher = new DefaultMapMouseEventDispatcher(this);
+		this.addMouseListener(mapMouseEventDispatcher);
+		this.addMouseMotionListener(mapMouseEventDispatcher);
+		this.addMouseWheelListener(mapMouseEventDispatcher);
+
 	}
 
 	// begin functions
@@ -387,7 +394,7 @@ public class JMapCanvas extends Canvas implements MapPane, MapLayerListListener,
 	 */
 	public void setCrs(CoordinateReferenceSystem crs) {
 		try {
-			
+
 			ReferencedEnvelope rEnv = getDisplayArea();
 
 			CoordinateReferenceSystem sourceCRS = rEnv.getCoordinateReferenceSystem();
@@ -406,6 +413,19 @@ public class JMapCanvas extends Canvas implements MapPane, MapLayerListListener,
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * 绘制成功后清理缓存的操作
+	 */
+	public void onRenderingCompleted() {
+		if (clearLabelCache) {
+			labelCache.clear();
+		}
+		clearLabelCache = false;
+
+		MapPaneEvent ev = new MapPaneEvent(this, MapPaneEvent.Type.RENDERING_STOPPED);
+		publishEvent(ev);
 	}
 
 	// end
@@ -490,10 +510,10 @@ public class JMapCanvas extends Canvas implements MapPane, MapLayerListListener,
 	 * @param color
 	 */
 	public void setBackground(Color color) {
-		if (color != null){
+		if (color != null) {
 			this.backgroundColor = color;
-			g2d.setBackground(color);
 		}
+		super.setBackground(color);
 	}
 
 	/**
@@ -686,8 +706,8 @@ public class JMapCanvas extends Canvas implements MapPane, MapLayerListListener,
 	@Override
 	public void moveImage(int dx, int dy) {
 		if (this.baseImage != null) {
-			g2d.clearRect(0, 0, (int)this.getWidth(), (int)this.getHeight());
-			g2d.drawImage(baseImage, dx, dy, null);
+			offsetImage.setLocation(dx, dy);
+			this.repaint();
 		}
 	}
 
@@ -696,16 +716,18 @@ public class JMapCanvas extends Canvas implements MapPane, MapLayerListListener,
 	 */
 	@Override
 	public void move(int dx, int dy) {
-		
-		final ReferencedEnvelope env = mapContent.getViewport().getBounds();
+
+		final ReferencedEnvelope env = getDisplayArea();
 		if (env == null)
 			return;
 		DirectPosition2D newPos = new DirectPosition2D(dx, dy);
-		screenToWorld.transform(newPos, newPos);
+		AffineTransform screenToWorldTransform = this.getScreenToWorldTransform();
+		screenToWorldTransform.transform(newPos, newPos);
 
 		env.translate(env.getMinimum(0) - newPos.x, env.getMaximum(1) - newPos.y);
 		doSetDisplayArea(env);
 		this.repaint(false);
+		offsetImage.setLocation(0, 0);
 	}
 
 	/**
@@ -719,7 +741,6 @@ public class JMapCanvas extends Canvas implements MapPane, MapLayerListListener,
 			baseImage = new BufferedImage(r.width, r.height, BufferedImage.TYPE_INT_ARGB);
 			clearLabelCache = true;
 			memory2D = baseImage.createGraphics();
-			g2d = (Graphics2D)this.getGraphics();
 		}
 		memory2D.setBackground(this.backgroundColor);
 		memory2D.clearRect(0, 0, r.width, r.height);
@@ -732,14 +753,9 @@ public class JMapCanvas extends Canvas implements MapPane, MapLayerListListener,
 			}
 		}
 
-		if(g2d != null)
-			g2d.drawImage(baseImage, 0, 0, null);
-
-		if (this.paintListeners != null && !this.paintListeners.isEmpty()) {
-			for (MapPaintListener listener : this.paintListeners) {
-				listener.afterPaint(g2d);
-			}
-		}
+		this.clearLabelCache = true;
+		this.onRenderingCompleted();
+		this.repaint();
 	}
 
 	/**
@@ -750,18 +766,28 @@ public class JMapCanvas extends Canvas implements MapPane, MapLayerListListener,
 		if (memory2D != null) {
 			if (this.paintListeners != null && !this.paintListeners.isEmpty()) {
 				for (MapPaintListener listener : this.paintListeners) {
-					listener.beforePaint(g2d);
+					listener.beforePaint(memory2D);
 				}
 			}
 		}
+		
+		this.repaint();
 
+	}
+	
+	/**
+	 * 重绘操作
+	 */
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
 		if (this.baseImage != null) {
-			g2d.drawImage(baseImage, 0, 0, null);
+			g.drawImage(baseImage, offsetImage.x, offsetImage.y, null);
 		}
 
 		if (this.paintListeners != null && !this.paintListeners.isEmpty()) {
 			for (MapPaintListener listener : this.paintListeners) {
-				listener.afterPaint(g2d);
+				listener.afterPaint((Graphics2D) g);
 			}
 		}
 	}
@@ -837,7 +863,7 @@ public class JMapCanvas extends Canvas implements MapPane, MapLayerListListener,
 	 */
 	@Override
 	public void layerPreDispose(MapLayerListEvent event) {
-		
+
 	}
 
 	// end
@@ -850,15 +876,15 @@ public class JMapCanvas extends Canvas implements MapPane, MapLayerListListener,
 	@Override
 	public void mapBoundsChanged(MapBoundsEvent event) {
 		int type = event.getType();
-        if ((type & MapBoundsEvent.COORDINATE_SYSTEM_MASK) != 0) {
-            /*
-             * The coordinate reference system has changed. Set the map
-             * to display the full extent of layer bounds to avoid the
-             * effect of a shrinking map
-             */
-            setFullExtent();
-            reset();
-        }
+		if ((type & MapBoundsEvent.COORDINATE_SYSTEM_MASK) != 0) {
+			/*
+			 * The coordinate reference system has changed. Set the map to
+			 * display the full extent of layer bounds to avoid the effect of a
+			 * shrinking map
+			 */
+			setFullExtent();
+			reset();
+		}
 	}
 
 	// end

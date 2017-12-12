@@ -90,7 +90,7 @@ public abstract class AbstractZoomTool extends CursorTool {
 	public void onMouseWheelMoved(MapMouseEvent ev) {
 		try {
 
-			int clicks = iCount.addAndGet(ev.getWheelAmount());
+			int clicks = iCount.addAndGet(-ev.getWheelAmount());
 
 			double actualZoom = 1;
 			// positive clicks are down - zoom out

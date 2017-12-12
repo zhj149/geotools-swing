@@ -151,6 +151,62 @@ public class FeatureLayerHelper extends InfoToolHelper {
 
         return result;
     }
+    
+	/**
+	 * 根据2点之间，选择区域内的对象
+	 * @param pos1 起始点
+	 * @param pos2 终止点
+	 * @return
+	 * @throws Exception
+	 */
+	public InfoToolResult getInfo(DirectPosition2D pos1 , DirectPosition2D pos2) throws Exception
+	{
+		if(pos1 == null || pos2 == null)
+			return null;
+		
+		InfoToolResult result = new InfoToolResult();
+
+		if (isValid()) {
+			Filter filter = null;
+			ReferencedEnvelope env = createSearchEnv(pos1 , pos2);
+			filter = filterFactory.bbox(filterFactory.property(attrName), env);
+			
+			Query query = new Query(null, filter);
+			query.setCoordinateSystemReproject(getMapContent().getCoordinateReferenceSystem());
+			FeatureSource<?, ?> featureSource = getLayer().getFeatureSource();
+			Collection<PropertyDescriptor> descriptors = featureSource.getSchema().getDescriptors();
+
+			FeatureCollection<?, ?> queryResult = featureSource.getFeatures(query);
+			FeatureIterator<?> iter = queryResult.features();
+
+			try {
+				while (iter.hasNext()) {
+					Feature f = iter.next();
+					result.newFeature(f.getIdentifier().getID());
+					for (PropertyDescriptor desc : descriptors) {
+						Name name = desc.getName();
+						Object value = f.getProperty(name).getValue();
+
+						if (value != null) {
+							if (value instanceof Geometry) {
+								result.setFeatureValue(name, value.getClass().getSimpleName());
+							} else {
+								result.setFeatureValue(name, value);
+							}
+						} else {
+							result.setFeatureValue(name, "null");
+						}
+					}
+				}
+
+			} finally {
+				iter.close();
+			}
+		}
+
+		return result;
+	}
+
 
     /**
      * Converts the query position, in map content coordinates, to a position
@@ -205,4 +261,41 @@ public class FeatureLayerHelper extends InfoToolHelper {
 
         return env;
     }
+    
+	/**
+	 * 求2个点之间围城的矩形的区域
+	 * 
+	 * @param pos1
+	 * @param pos2
+	 * @return
+	 */
+	private ReferencedEnvelope createSearchEnv(DirectPosition2D pos1, DirectPosition2D pos2) {
+		ReferencedEnvelope mapBounds = getMapContent().getViewport().getBounds();
+		if (mapBounds == null || mapBounds.isEmpty()) {
+			// fall back to layer bounds
+			Layer layer = getLayer();
+			if (layer == null) {
+				// this should never happen
+				throw new IllegalStateException("Target layer has been lost");
+			}
+			mapBounds = getLayer().getBounds();
+		}
+
+		CoordinateReferenceSystem contentCRS = getMapContent().getCoordinateReferenceSystem();
+		ReferencedEnvelope env = new ReferencedEnvelope(pos1.x, pos2.x, pos1.y, pos2.y, contentCRS);
+
+		if (isTransformRequired()) {
+			CoordinateReferenceSystem layerCRS = getLayer().getFeatureSource().getSchema()
+					.getCoordinateReferenceSystem();
+
+			try {
+				env = env.transform(layerCRS, true);
+			} catch (Exception ex) {
+				throw new IllegalStateException(ex);
+			}
+		}
+
+		return env;
+	}
+	
 }

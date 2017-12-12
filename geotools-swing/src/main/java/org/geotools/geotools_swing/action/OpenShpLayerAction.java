@@ -84,6 +84,7 @@ public class OpenShpLayerAction extends AbstractMapAction {
 			FeatureLayer layer = new FeatureLayer(cache, style , file.getName().substring(0 , file.getName().lastIndexOf(".")));
 
 			this.getMapPane().getMapContent().addLayer(layer);
+			this.getMapPane().repaint(true);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}		
