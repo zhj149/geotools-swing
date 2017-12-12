@@ -19,6 +19,7 @@ package org.geotools.geotools_swing.tools;
 
 import java.awt.Cursor;
 import java.awt.Point;
+import java.awt.event.MouseEvent;
 
 import org.geotools.geotools_swing.event.MapMouseEvent;
 
@@ -31,7 +32,7 @@ import org.geotools.geotools_swing.event.MapMouseEvent;
  * @source $URL$
  * @version $Id$
  */
-public class PanTool extends AbstractZoomTool  {
+public class PanTool extends AbstractZoomTool {
 
 	/** Tool name */
 	public static final String TOOL_NAME = "PanTool";
@@ -71,8 +72,11 @@ public class PanTool extends AbstractZoomTool  {
 	 */
 	@Override
 	public void onMousePressed(MapMouseEvent ev) {
-		beginPos.setLocation(ev.getPoint());
-		panning = true;
+		if (ev.getButton() == MouseEvent.BUTTON1) {
+			beginPos.setLocation(ev.getPoint());
+			endPos.setLocation(ev.getPoint());
+			panning = true;
+		}
 	}
 
 	/**
@@ -101,7 +105,9 @@ public class PanTool extends AbstractZoomTool  {
 	 */
 	@Override
 	public void onMouseReleased(MapMouseEvent ev) {
-		getMapPane().move(endPos.x - beginPos.x, endPos.y - beginPos.y);
+		if (panning && !beginPos.equals(endPos)) {
+			getMapPane().move(endPos.x - beginPos.x, endPos.y - beginPos.y);
+		}
 		panning = false;
 		beginPos.setLocation(0, 0);
 		endPos.setLocation(0, 0);
