@@ -20,6 +20,7 @@ package org.geotools.geotools_swing.old;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -324,6 +325,8 @@ public class JSimpleStyleDialog extends JDialog {
         setResizable(false);
         this.schema = schema;
         init(initialStyle);
+        this.setLocationByPlatform(false);
+        this.setLocationRelativeTo(null);
     }
 
     /**

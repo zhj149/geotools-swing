@@ -41,13 +41,6 @@ public class OpenShpLayerAction extends AbstractMapAction {
 	 */
 	private static Random rd = new Random();
 
-	/**
-	 * 导入shp图层
-	 */
-	public OpenShpLayerAction() {
-
-	}
-
 	@Override
 	public void actionPerformed(java.awt.event.ActionEvent e) {
 		final JFileChooser fileChooser = new JFileChooser();

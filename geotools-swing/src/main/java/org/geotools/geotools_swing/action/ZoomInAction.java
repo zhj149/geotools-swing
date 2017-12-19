@@ -15,18 +15,11 @@ public class ZoomInAction extends AbstractMapAction {
 
 	/**
 	 * 放大操作
-	 */
-	public ZoomInAction() {
-
-	}
-
-	/**
-	 * 放大操作
 	 * 
 	 * @param mapPane
 	 */
 	public ZoomInAction(MapPane mapPane) {
-		this.setMapPane(mapPane);
+		super(mapPane);
 	}
 
 	@Override

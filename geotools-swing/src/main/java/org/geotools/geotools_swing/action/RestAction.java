@@ -21,12 +21,6 @@ public class RestAction extends AbstractMapAction {
 		super(mapPane);
 	}
 	
-	/**
-	 * 不带地图上下文的构造函数
-	 */
-	public RestAction() {
-	}
-
 	@Override
 	public void actionPerformed(java.awt.event.ActionEvent e) {
 		if (this.getMapPane() != null)

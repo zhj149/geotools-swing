@@ -15,18 +15,11 @@ public class PanAction extends AbstractMapAction {
 
 	/**
 	 * 移动操作
-	 */
-	public PanAction() {
-
-	}
-
-	/**
-	 * 移动操作
 	 * 
 	 * @param mapPane
 	 */
 	public PanAction(MapPane mapPane) {
-		this.setMapPane(mapPane);
+		super(mapPane);
 	}
 
 	@Override

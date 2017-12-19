@@ -26,12 +26,6 @@ public abstract class AbstractMapAction extends AbstractAction implements MapAct
 	}
 	
 	/**
-	 * 所有的工具控件的基类
-	 */
-	public AbstractMapAction(){
-	}
-
-	/**
 	 * 画布对象
 	 */
 	@Override

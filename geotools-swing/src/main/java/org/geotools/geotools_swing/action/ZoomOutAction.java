@@ -15,18 +15,11 @@ public class ZoomOutAction extends AbstractMapAction {
 
 	/**
 	 * 缩小操作
-	 */
-	public ZoomOutAction() {
-
-	}
-
-	/**
-	 * 缩小操作
 	 * 
 	 * @param mapPane
 	 */
 	public ZoomOutAction(MapPane mapPane) {
-		this.setMapPane(mapPane);
+		super(mapPane);
 	}
 
 	@Override
