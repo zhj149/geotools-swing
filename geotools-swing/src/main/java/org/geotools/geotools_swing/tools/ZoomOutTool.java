@@ -3,7 +3,6 @@ package org.geotools.geotools_swing.tools;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.geom.Point2D;
 
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.Envelope2D;
@@ -29,7 +28,7 @@ import org.geotools.geotools_swing.event.MapMouseEvent;
  * @source $URL$
  * @version $Id$
  */
-public class ZoomOutTool extends AbstractZoomTool implements DragBoxMapPaintListener {
+public class ZoomOutTool extends AbstractZoomTool {
 
 	/** Tool name */
 	public static final String TOOL_NAME = "ZoomOut";
@@ -42,19 +41,10 @@ public class ZoomOutTool extends AbstractZoomTool implements DragBoxMapPaintList
 
 	private Cursor cursor;
 
-	private final Point startPosDevice;
-	private final Point endPosDevice;
-	private final Point2D startPosWorld;
-	private volatile boolean dragged;
-
 	/**
 	 * Constructor
 	 */
 	public ZoomOutTool() {
-		startPosDevice = new Point();
-		endPosDevice = new Point();
-		startPosWorld = new DirectPosition2D();
-		dragged = false;
 	}
 
 	/**
@@ -63,9 +53,6 @@ public class ZoomOutTool extends AbstractZoomTool implements DragBoxMapPaintList
 	@Override
 	public void setMapPane(MapPane pane) {
 		super.setMapPane(pane);
-		if (pane != null) {
-			pane.addPaintListener(this);
-		}
 	}
 
 	/**
@@ -74,7 +61,6 @@ public class ZoomOutTool extends AbstractZoomTool implements DragBoxMapPaintList
 	@Override
 	public void unUsed() {
 		super.unUsed();
-		this.getMapPane().removePaintListener(this);
 	}
 
 	/**
@@ -104,49 +90,6 @@ public class ZoomOutTool extends AbstractZoomTool implements DragBoxMapPaintList
 	}
 
 	/**
-	 * Records the map position of the mouse event in case this button press is
-	 * the beginning of a mouse drag
-	 *
-	 * @param ev
-	 *            the mouse event
-	 */
-	@Override
-	public void onMousePressed(MapMouseEvent ev) {
-		startPosDevice.setLocation(ev.getPoint());
-		startPosWorld.setLocation(ev.getWorldPos());
-	}
-
-	/**
-	 * Records that the mouse is being dragged
-	 *
-	 * @param ev
-	 *            the mouse event
-	 */
-	@Override
-	public void onMouseDragged(MapMouseEvent ev) {
-		dragged = true;
-		endPosDevice.setLocation(ev.getPoint());
-		getMapPane().refresh();
-	}
-
-	/**
-	 * If the mouse was dragged, determines the bounds of the box that the user
-	 * defined and passes this to the mapPane's {@code setDisplayArea} method.
-	 *
-	 * @param ev
-	 *            the mouse event
-	 */
-	@Override
-	public void onMouseReleased(MapMouseEvent ev) {
-		if (dragged && !ev.getPoint().equals(startPosDevice)) {
-			Envelope2D env = new Envelope2D();
-			env.setFrameFromDiagonal(startPosWorld, ev.getWorldPos());
-			dragged = false;
-			getMapPane().setDisplayArea(env);
-		}
-	}
-
-	/**
 	 * Get the mouse cursor for this tool
 	 */
 	@Override
@@ -154,27 +97,4 @@ public class ZoomOutTool extends AbstractZoomTool implements DragBoxMapPaintList
 		return cursor;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isDrag() {
-		return this.dragged;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Point getStartDevicePos() {
-		return this.startPosDevice;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Point getEndDevicePos() {
-		return this.endPosDevice;
-	}
 }
