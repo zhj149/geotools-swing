@@ -43,7 +43,7 @@ public abstract class AbstractZoomTool extends CursorTool {
 	private AtomicInteger iCount = new AtomicInteger(0);
 
 	/** The default zoom increment */
-	public static final double DEFAULT_ZOOM_FACTOR = 1.5;
+	public static final double DEFAULT_ZOOM_FACTOR = 1.25;
 
 	/** The working zoom increment */
 	protected double zoom;
@@ -94,9 +94,9 @@ public abstract class AbstractZoomTool extends CursorTool {
 
 			double actualZoom = 1;
 			// positive clicks are down - zoom out
-			if (clicks >= 3) {
+			if (clicks >= 1) {
 				actualZoom = getZoom();
-			} else if (clicks <= -3) {
+			} else if (clicks <= -1) {
 				actualZoom = -1.0 / getZoom();
 			} else {
 				return;
