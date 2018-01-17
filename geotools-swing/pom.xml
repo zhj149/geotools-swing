@@ -46,6 +46,16 @@
 			<artifactId>miglayout-swing</artifactId>
 			<version>4.2</version>
 		</dependency>
+		<dependency>
+			<groupId>swingdock</groupId>
+			<artifactId>infonode</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		<dependency>
+			<groupId>swingdock</groupId>
+			<artifactId>raven-docking</artifactId>
+			<version>1.0</version>
+		</dependency>
 
 		<!-- 本人的另外一个开源项目 -->
 		<!-- https://github.com/zhj149/SamSwingX -->

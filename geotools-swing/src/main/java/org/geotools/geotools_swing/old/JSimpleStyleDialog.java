@@ -20,7 +20,6 @@ package org.geotools.geotools_swing.old;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dialog;
-import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -38,6 +37,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.MutableComboBoxModel;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -299,6 +299,7 @@ public class JSimpleStyleDialog extends JDialog {
                             dialog.getPointSize(),
                             dialog.getLabelField(),
                             dialog.getLabelFont());
+                    
                     break;
 			default:
 				break;
@@ -319,9 +320,11 @@ public class JSimpleStyleDialog extends JDialog {
      *        (may be {@code null})
      *
      * @throws IllegalStateException if the data store cannot be accessed
+     * @wbp.parser.constructor
      */
     public JSimpleStyleDialog(Frame owner, SimpleFeatureType schema, Style initialStyle) {
         super(owner, "Simple style maker", true);
+        setTitle("样式修改");
         setResizable(false);
         this.schema = schema;
         init(initialStyle);
@@ -371,7 +374,7 @@ public class JSimpleStyleDialog extends JDialog {
             initComponents();
             setType();
             setStyle(initialStyle);
-
+            this.setSize(360, 360);
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }
@@ -483,21 +486,22 @@ public class JSimpleStyleDialog extends JDialog {
         JLabel label = null;
         JButton btn = null;
 
-        label = new JLabel("Feature type");
+        label = new JLabel("特性类型");
         label.setForeground(Color.BLUE);
         panel.add(label, "wrap");
 
         typeLabel = new JLabel();
-        panel.add(typeLabel, "gapbefore indent, span, wrap");
+        typeLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        panel.add(typeLabel, "gapx indent,aligny top,wrap");
 
         /*
          * Line style items
          */
-        label = new JLabel("Line");
+        label = new JLabel("线条");
         label.setForeground(Color.BLUE);
         panel.add(label, "wrap");
 
-        btn = new JButton("Color...");
+        btn = new JButton("颜色...");
         btn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 chooseLineColor();
@@ -510,7 +514,7 @@ public class JSimpleStyleDialog extends JDialog {
         lineColorLabel = new JLabel(lineColorIcon);
         panel.add(lineColorLabel, "gapafter 20px");
 
-        label = new JLabel("Width");
+        label = new JLabel("宽度");
         panel.add(label, "split 2");
 
         Integer[] widths = new Integer[5];
@@ -529,11 +533,11 @@ public class JSimpleStyleDialog extends JDialog {
         /*
          * Fill style items
          */
-        label = new JLabel("Fill");
+        label = new JLabel("填充");
         label.setForeground(Color.BLUE);
         panel.add(label, "wrap");
 
-        btn = new JButton("Color...");
+        btn = new JButton("颜色...");
         btn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 chooseFillColor();
@@ -546,7 +550,7 @@ public class JSimpleStyleDialog extends JDialog {
         fillColorLabel = new JLabel(fillColorIcon);
         panel.add(fillColorLabel, "gapafter 20px");
 
-        label = new JLabel("% opacity");
+        label = new JLabel("% 透明度");
         panel.add(label, "split 2");
 
         fillOpacitySlider = new JSlider(0, 100, 100);
@@ -565,11 +569,11 @@ public class JSimpleStyleDialog extends JDialog {
         /*
          * Point style items
          */
-        label = new JLabel("Point");
+        label = new JLabel("点");
         label.setForeground(Color.BLUE);
         panel.add(label, "wrap");
 
-        label = new JLabel("Size");
+        label = new JLabel("大小");
         panel.add(label, "gapbefore indent, split 2");
 
         Number[] sizes = new Number[10];
@@ -585,7 +589,7 @@ public class JSimpleStyleDialog extends JDialog {
         panel.add(pointSizeCBox);
         controls.put(pointSizeCBox, ControlCategory.POINT);
 
-        label = new JLabel("Symbol");
+        label = new JLabel("符号");
         panel.add(label, "skip, split 2");
 
         pointSymbolCBox = new JComboBox<Object>(WELL_KNOWN_SYMBOL_NAMES);
@@ -601,11 +605,11 @@ public class JSimpleStyleDialog extends JDialog {
         /*
          * Label items
          */
-        label = new JLabel("Labels");
+        label = new JLabel("标签");
         label.setForeground(Color.BLUE);
         panel.add(label, "wrap");
 
-        final JButton fontBtn = new JButton("Font...");
+        final JButton fontBtn = new JButton("字体...");
         fontBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 chooseLabelFont();
@@ -625,11 +629,12 @@ public class JSimpleStyleDialog extends JDialog {
                 labelFeatures = checkBox.isSelected();
                 labelCBox.setEnabled(labelFeatures);
                 fontBtn.setEnabled(labelFeatures);
+                labelField = labelCBox.getModel().getSelectedItem().toString();
             }
         });
         panel.add(checkBox, "gapbefore indent, span, split 3");
 
-        label = new JLabel("Field");
+        label = new JLabel("字段");
         panel.add(label);
         labelCBox.setEnabled(checkBox.isSelected());
         panel.add(labelCBox, "wrap");
@@ -639,7 +644,7 @@ public class JSimpleStyleDialog extends JDialog {
         /*
          * Apply and Cancel buttons
          */
-        btn = new JButton("Apply");
+        btn = new JButton("确定");
         btn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 completed = true;
@@ -648,7 +653,7 @@ public class JSimpleStyleDialog extends JDialog {
         });
         panel.add(btn, "span, split 2, align right");
 
-        btn = new JButton("Cancel");
+        btn = new JButton("取消");
         btn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 geomType = null;

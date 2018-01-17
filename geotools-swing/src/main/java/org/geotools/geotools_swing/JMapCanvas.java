@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.AffineTransform;
@@ -148,7 +149,7 @@ public class JMapCanvas extends JPanel implements MapPane, MapLayerListListener,
 	/**
 	 * 背景的填充色
 	 */
-	private Color backgroundColor = new Color(5198932);
+	private Color backgroundColor = new Color(100, 106, 116);
 
 	/**
 	 * javafx实现的geotools画布对象
@@ -750,6 +751,9 @@ public class JMapCanvas extends JPanel implements MapPane, MapLayerListListener,
 			baseImage = new BufferedImage(r.width, r.height, BufferedImage.TYPE_INT_ARGB);
 			clearLabelCache = true;
 			memory2D = baseImage.createGraphics();
+			memory2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			memory2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
 		}
 		memory2D.setBackground(this.backgroundColor);
 		memory2D.clearRect(0, 0, r.width, r.height);

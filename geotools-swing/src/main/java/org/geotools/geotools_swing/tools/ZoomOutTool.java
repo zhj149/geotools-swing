@@ -77,6 +77,9 @@ public class ZoomOutTool extends AbstractZoomTool {
 
 		double scale = getMapPane().getWorldToScreenTransform().getScaleX();
 		double newScale = scale / zoom;
+		
+		if (isNotZoomed(newScale))
+			return;
 
 		DirectPosition2D corner = new DirectPosition2D(mapPos.getX() - 0.5d * paneArea.getWidth() / newScale,
 				mapPos.getY() + 0.5d * paneArea.getHeight() / newScale);

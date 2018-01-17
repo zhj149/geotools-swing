@@ -45,6 +45,11 @@ public abstract class AbstractZoomTool extends CursorTool {
 	/** The default zoom increment */
 	public static final double DEFAULT_ZOOM_FACTOR = 1.25;
 
+	/**
+	 * 新增加的设置的最小放大比例
+	 */
+	public static final double MIN_ZOOM = 3.02;
+
 	/** The working zoom increment */
 	protected double zoom;
 
@@ -81,6 +86,16 @@ public abstract class AbstractZoomTool extends CursorTool {
 	}
 
 	/**
+	 * 判断是否继续放大
+	 * 
+	 * @param newZoom
+	 * @return true 不放大了 false 继续放大
+	 */
+	public boolean isNotZoomed(double newZoom) {
+		return Math.abs(newZoom) < MIN_ZOOM;
+	}
+
+	/**
 	 * Respond to a mouse wheel scroll event received from the map pane
 	 *
 	 * @param ev
@@ -112,6 +127,9 @@ public abstract class AbstractZoomTool extends CursorTool {
 				double scale = mapPane.getWorldToScreenTransform().getScaleX();
 				double newScale = scale * actualZoom;
 
+				if (isNotZoomed(newScale))
+					return;
+
 				DirectPosition2D corner = new DirectPosition2D(mapPos.getX() - 0.5d * paneArea.width / newScale,
 						mapPos.getY() + 0.5d * paneArea.height / newScale);
 
@@ -119,7 +137,7 @@ public abstract class AbstractZoomTool extends CursorTool {
 				newMapArea.setFrameFromCenter(mapPos, corner);
 				mapPane.setDisplayArea(newMapArea);
 
-				//然后平移到鼠标操作点
+				// 然后平移到鼠标操作点
 				getMapPane().move((int) (ev.getX() - paneArea.getWidth() / 2),
 						(int) (ev.getY() - paneArea.getHeight() / 2));
 

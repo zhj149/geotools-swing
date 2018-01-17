@@ -1,6 +1,8 @@
 package org.geotools.geotools_swing.controll;
 
 import java.awt.BorderLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Collection;
 
 import javax.swing.ImageIcon;
@@ -30,6 +32,7 @@ import org.sam.swing.table.defaultImpl.JSTableDefaultBuilderImpl;
 import org.sam.swing.table.defaultImpl.JSTableModelDefaultAdapter;
 import org.sam.swing.table.editor.JSTableCheckboxEditor;
 import org.sam.swing.table.editor.JSTableImageButtonEditor;
+import org.sam.swing.table.header.JSTableHeaderCheckboxRenderer;
 import org.sam.swing.table.renderer.JSTableCheckboxRenderer;
 import org.sam.swing.table.renderer.JSTableImageButtonRenderer;
 
@@ -39,7 +42,7 @@ import org.sam.swing.table.renderer.JSTableImageButtonRenderer;
  * @author sam
  *
  */
-public class JMapLayerTable extends JPanel implements MapListener, MapPaneListener,MapLayerListListener {
+public class JMapLayerTable extends JPanel implements MapListener, MapPaneListener, MapLayerListListener {
 
 	private static final long serialVersionUID = -2455449236847315868L;
 
@@ -75,7 +78,8 @@ public class JMapLayerTable extends JPanel implements MapListener, MapPaneListen
 
 	/**
 	 * 初始化控件显示
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	private void initCompenets() {
 		this.setLayout(new BorderLayout());
@@ -88,7 +92,7 @@ public class JMapLayerTable extends JPanel implements MapListener, MapPaneListen
 		column0.setHeaderValue("可见");
 		column0.setTitle("可见");
 		column0.setIdentifier("visible");
-		column0.setMaxWidth(50);
+		column0.setMaxWidth(25);
 		column0.setResizable(false);
 		column0.setDefaultValue(true);
 		JSTableCheckboxRenderer cbxRenderer = new JSTableCheckboxRenderer();
@@ -96,6 +100,21 @@ public class JMapLayerTable extends JPanel implements MapListener, MapPaneListen
 		JCheckBox checkbox = new JCheckBox();
 		checkbox.setHorizontalAlignment(JCheckBox.CENTER);
 		column0.setCellEditor(new JSTableCheckboxEditor(checkbox));
+		// 表头改为checkbox风格
+		JSTableHeaderCheckboxRenderer headerChx = new JSTableHeaderCheckboxRenderer();
+		headerChx.setSelected(true);
+		headerChx.addMouseListener(new MouseAdapter() {
+
+			// 设置图层的可见性
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int rowCount = tableModel.getRowCount();
+				for (int i = 0; i < rowCount; i++) {
+					tableModel.setValueAt(headerChx.isSelected(), i, column0.getModelIndex());
+				}
+			}
+		});
+		column0.setHeaderRenderer(headerChx);
 
 		JSTableColumn column1 = new JSTableColumn();
 		column1.setModelIndex(1);
@@ -133,7 +152,7 @@ public class JMapLayerTable extends JPanel implements MapListener, MapPaneListen
 		btnStyle.addActionListener(e -> {
 			Object layer = null;
 			try {
-				layer = tableModel.getData(table.convertRowIndexToModel(table.getSelectedRow()) );
+				layer = tableModel.getData(table.convertRowIndexToModel(table.getSelectedRow()));
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
@@ -145,13 +164,14 @@ public class JMapLayerTable extends JPanel implements MapListener, MapPaneListen
 				}
 			}
 		});
-		
-		JSTableBuilder<Collection<Layer>> builder = new JSTableDefaultBuilderImpl<>(Layer.class,column0, column1 , column2,column3);
+
+		JSTableBuilder<Collection<Layer>> builder = new JSTableDefaultBuilderImpl<>(Layer.class, column0, column1,
+				column2, column3);
 		try {
 			table = builder.buildTable();
 			tableModel = builder.getTableModel();
 			tableModel.setTableModelLinster(new JSTableModelDefaultAdapter<Layer>() {
-				
+
 				/**
 				 * 检索数据
 				 */
@@ -159,19 +179,20 @@ public class JMapLayerTable extends JPanel implements MapListener, MapPaneListen
 				public Collection<Layer> onRetrieve() throws Exception {
 					return getMapPane().getMapContent().layers();
 				}
-				
+
 			});
 			tableColumnModel = builder.getTableColumnModel();
 			tableModel.setEditable(true);
+			tableModel.retrieve();
 
 			this.add(new JScrollPane(table), BorderLayout.CENTER);
-			
+
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
 	}
 
-	// begin implemnts 接口
+	// 以下是实现的接口
 
 	/**
 	 * {@inheritDoc}
@@ -187,7 +208,7 @@ public class JMapLayerTable extends JPanel implements MapListener, MapPaneListen
 	@Override
 	public void setMapPane(MapPane mapPane) {
 		this.mapPane = mapPane;
-		if (this.mapPane != null){
+		if (this.mapPane != null) {
 			this.mapPane.addMapPaneListener(this);
 			this.mapPane.getMapContent().addMapLayerListListener(this);
 		}
@@ -247,37 +268,65 @@ public class JMapLayerTable extends JPanel implements MapListener, MapPaneListen
 
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void layerAdded(MapLayerListEvent event) {
 		try {
-			tableModel.insert(0, event.getElement());
+			// 直接加到最后一行
+			tableModel.insert(tableModel.getRowCount(), event.getElement());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void layerRemoved(MapLayerListEvent event) {
-		
+		try {
+			tableModel.delete(event.getFromIndex());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void layerChanged(MapLayerListEvent event) {
-		// TODO Auto-generated method stub
-		
+		try {
+			tableModel.retrieve();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void layerMoved(MapLayerListEvent event) {
-		// TODO Auto-generated method stub
-		
+		try {
+			tableModel.moveRow(event.getFromIndex(), event.getToIndex());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void layerPreDispose(MapLayerListEvent event) {
-		// TODO Auto-generated method stub
-		
+		try {
+			tableModel.delete(event.getFromIndex());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
-	// end
 }
