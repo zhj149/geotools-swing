@@ -385,7 +385,7 @@ public class JSimpleStyleDialog extends JDialog {
             setStyle(initialStyle);
             this.setSize(360, 360);
             
-            lblFontColor.setBackground(fontColor);
+            lblFontColor.setForeground(fontColor);
             
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
@@ -693,7 +693,7 @@ public class JSimpleStyleDialog extends JDialog {
 
         getContentPane().add(panel);
         
-        lblFontColor = new JLabel("   ");
+        lblFontColor = new JLabel("ABC");
         panel.add(lblFontColor, "cell 1 10");
         pack();
     }
@@ -914,7 +914,7 @@ public class JSimpleStyleDialog extends JDialog {
     	 Color color = JColorChooser.showDialog(this, "选择字体颜色", fontColor);
     	 if (color != null) {
              fontColor = color;
-             lblFontColor.setBackground(color);
+             lblFontColor.setForeground(color);
              lblFontColor.repaint();
          }
     }
