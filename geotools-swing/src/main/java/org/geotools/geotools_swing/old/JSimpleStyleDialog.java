@@ -44,6 +44,7 @@ import javax.swing.event.ChangeListener;
 import org.geotools.data.DataStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.Geometries;
+import org.geotools.geotools_swing.styling.SLDs;
 import org.geotools.map.RasterLayer;
 import org.geotools.map.StyleLayer;
 import org.geotools.styling.FeatureTypeStyle;
@@ -115,6 +116,7 @@ public class JSimpleStyleDialog extends JDialog {
         "Circle", "Square", "Cross", "X", "Triangle", "Star"};
 
     public static final Color DEFAULT_LINE_COLOR = Color.BLACK;
+    public static final Color DEFAULT_FONT_COLOR = Color.BLACK;
     public static final Color DEFAULT_FILL_COLOR = Color.WHITE;
     public static final float DEFAULT_LINE_WIDTH = 1.0f;
     public static final float DEFAULT_OPACITY = 1.0f;
@@ -127,6 +129,8 @@ public class JSimpleStyleDialog extends JDialog {
 
     private Color lineColor;
     private Color fillColor;
+    // 字体颜色
+    private Color fontColor;
     private float lineWidth;
     private float opacity;
     private float pointSize;
@@ -157,6 +161,8 @@ public class JSimpleStyleDialog extends JDialog {
     private String[] fieldsForLabels;
 
     private boolean completed;
+    private JButton button;
+    private JLabel lblFontColor;
 
     /**
      * Static convenience method: displays a {@code JSimpleStyleDialog} to prompt
@@ -272,33 +278,36 @@ public class JSimpleStyleDialog extends JDialog {
             switch (dialog.getGeomType()) {
                 case POLYGON:
                 case MULTIPOLYGON:
-                    style = SLD.createPolygonStyle(
+                    style = SLDs.createPolygonStyle(
                             dialog.getLineColor(),
                             dialog.getFillColor(),
                             dialog.getOpacity(),
                             dialog.getLabelField(),
-                            dialog.getLabelFont());
+                            dialog.getLabelFont(),
+                            dialog.getFontColor());
                     break;
 
                 case LINESTRING:
                 case MULTILINESTRING:
-                    style = SLD.createLineStyle(
+                    style = SLDs.createLineStyle(
                             dialog.getLineColor(),
                             dialog.getLineWidth(),
                             dialog.getLabelField(),
-                            dialog.getLabelFont());
+                            dialog.getLabelFont(),
+                            dialog.getFontColor());
                     break;
 
                 case POINT:
                 case MULTIPOINT:
-                    style = SLD.createPointStyle(
+                    style = SLDs.createPointStyle(
                             dialog.getPointSymbolName(),
                             dialog.getLineColor(),
                             dialog.getFillColor(),
                             dialog.getOpacity(),
                             dialog.getPointSize(),
                             dialog.getLabelField(),
-                            dialog.getLabelFont());
+                            dialog.getLabelFont(),
+                            dialog.getFontColor());
                     
                     break;
 			default:
@@ -359,6 +368,7 @@ public class JSimpleStyleDialog extends JDialog {
 
         lineColor = DEFAULT_LINE_COLOR;
         fillColor = DEFAULT_FILL_COLOR;
+        fontColor = DEFAULT_FONT_COLOR;
         lineWidth = DEFAULT_LINE_WIDTH;
         opacity = DEFAULT_OPACITY;
         pointSize = DEFAULT_POINT_SIZE;
@@ -366,7 +376,6 @@ public class JSimpleStyleDialog extends JDialog {
         labelFeatures = false;
         labelField = null;
         labelFont = sf.getDefaultFont();
-
         geomType = null;
         completed = false;
 
@@ -375,6 +384,9 @@ public class JSimpleStyleDialog extends JDialog {
             setType();
             setStyle(initialStyle);
             this.setSize(360, 360);
+            
+            lblFontColor.setBackground(fontColor);
+            
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }
@@ -474,12 +486,20 @@ public class JSimpleStyleDialog extends JDialog {
     public Font getLabelFont() {
         return labelFont;
     }
-
+    
     /**
+     * 字体颜色
+     * @return
+     */
+    public Color getFontColor() {
+		return fontColor;
+	}
+
+	/**
      * Create and layout the controls
      */
     private void initComponents() {
-        MigLayout layout = new MigLayout();
+        MigLayout layout = new MigLayout("", "[][][]", "[][][][][][][][][][][][]");
         JPanel panel = new JPanel(layout);
         controls = new HashMap<Component, ControlCategory>();
 
@@ -488,18 +508,18 @@ public class JSimpleStyleDialog extends JDialog {
 
         label = new JLabel("特性类型");
         label.setForeground(Color.BLUE);
-        panel.add(label, "wrap");
+        panel.add(label, "cell 0 0");
 
         typeLabel = new JLabel();
         typeLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        panel.add(typeLabel, "gapx indent,aligny top,wrap");
+        panel.add(typeLabel, "cell 0 1,gapx indent,aligny top");
 
         /*
          * Line style items
          */
         label = new JLabel("线条");
         label.setForeground(Color.BLUE);
-        panel.add(label, "wrap");
+        panel.add(label, "cell 0 2");
 
         btn = new JButton("颜色...");
         btn.addActionListener(new ActionListener() {
@@ -507,15 +527,15 @@ public class JSimpleStyleDialog extends JDialog {
                 chooseLineColor();
             }
         });
-        panel.add(btn, "gapbefore indent");
+        panel.add(btn, "cell 0 3,gapx indent");
         controls.put(btn, ControlCategory.LINE);
 
         lineColorIcon = new JColorIcon(COLOR_ICON_SIZE, COLOR_ICON_SIZE, DEFAULT_LINE_COLOR);
         lineColorLabel = new JLabel(lineColorIcon);
-        panel.add(lineColorLabel, "gapafter 20px");
+        panel.add(lineColorLabel, "cell 1 3,gapright 20px");
 
         label = new JLabel("宽度");
-        panel.add(label, "split 2");
+        panel.add(label, "cell 2 3");
 
         Integer[] widths = new Integer[5];
         for (int i = 1; i <= widths.length; i++) { widths[i-1] = Integer.valueOf(i); }
@@ -526,7 +546,7 @@ public class JSimpleStyleDialog extends JDialog {
                 lineWidth = ((Number)lineWidthCBox.getModel().getSelectedItem()).intValue();
             }
         });
-        panel.add(lineWidthCBox, "wrap");
+        panel.add(lineWidthCBox, "cell 2 3");
         controls.put(lineWidthCBox, ControlCategory.LINE);
 
 
@@ -535,7 +555,7 @@ public class JSimpleStyleDialog extends JDialog {
          */
         label = new JLabel("填充");
         label.setForeground(Color.BLUE);
-        panel.add(label, "wrap");
+        panel.add(label, "cell 0 4");
 
         btn = new JButton("颜色...");
         btn.addActionListener(new ActionListener() {
@@ -543,15 +563,15 @@ public class JSimpleStyleDialog extends JDialog {
                 chooseFillColor();
             }
         });
-        panel.add(btn, "gapbefore indent");
+        panel.add(btn, "cell 0 5,gapx indent");
         controls.put(btn, ControlCategory.FILL);
 
         fillColorIcon = new JColorIcon(COLOR_ICON_SIZE, COLOR_ICON_SIZE, DEFAULT_FILL_COLOR);
         fillColorLabel = new JLabel(fillColorIcon);
-        panel.add(fillColorLabel, "gapafter 20px");
+        panel.add(fillColorLabel, "cell 1 5,gapright 20px");
 
         label = new JLabel("% 透明度");
-        panel.add(label, "split 2");
+        panel.add(label, "cell 2 5");
 
         fillOpacitySlider = new JSlider(0, 100, 100);
         fillOpacitySlider.setPaintLabels(true);
@@ -562,7 +582,7 @@ public class JSimpleStyleDialog extends JDialog {
                 opacity = (float)fillOpacitySlider.getValue() / 100;
             }
         });
-        panel.add(fillOpacitySlider, "span, wrap");
+        panel.add(fillOpacitySlider, "cell 2 5");
         controls.put(fillOpacitySlider, ControlCategory.FILL);
 
 
@@ -571,10 +591,10 @@ public class JSimpleStyleDialog extends JDialog {
          */
         label = new JLabel("点");
         label.setForeground(Color.BLUE);
-        panel.add(label, "wrap");
+        panel.add(label, "cell 0 6");
 
         label = new JLabel("大小");
-        panel.add(label, "gapbefore indent, split 2");
+        panel.add(label, "cell 0 7,gapx indent");
 
         Number[] sizes = new Number[10];
         for (int i = 1; i <= sizes.length; i++) {
@@ -586,11 +606,11 @@ public class JSimpleStyleDialog extends JDialog {
                 pointSize = ((Number) pointSizeCBox.getModel().getSelectedItem()).intValue();
             }
         });
-        panel.add(pointSizeCBox);
+        panel.add(pointSizeCBox, "cell 0 7");
         controls.put(pointSizeCBox, ControlCategory.POINT);
 
         label = new JLabel("符号");
-        panel.add(label, "skip, split 2");
+        panel.add(label, "cell 2 7");
 
         pointSymbolCBox = new JComboBox<Object>(WELL_KNOWN_SYMBOL_NAMES);
         pointSymbolCBox.addActionListener(new ActionListener() {
@@ -598,7 +618,7 @@ public class JSimpleStyleDialog extends JDialog {
                 pointSymbolName = WELL_KNOWN_SYMBOL_NAMES[pointSymbolCBox.getSelectedIndex()].toString();
             }
         });
-        panel.add(pointSymbolCBox, "wrap");
+        panel.add(pointSymbolCBox, "cell 2 7");
         controls.put(pointSymbolCBox, ControlCategory.POINT);
 
 
@@ -607,7 +627,7 @@ public class JSimpleStyleDialog extends JDialog {
          */
         label = new JLabel("标签");
         label.setForeground(Color.BLUE);
-        panel.add(label, "wrap");
+        panel.add(label, "cell 0 8");
 
         final JButton fontBtn = new JButton("字体...");
         fontBtn.addActionListener(new ActionListener() {
@@ -632,14 +652,14 @@ public class JSimpleStyleDialog extends JDialog {
                 labelField = labelCBox.getModel().getSelectedItem().toString();
             }
         });
-        panel.add(checkBox, "gapbefore indent, span, split 3");
+        panel.add(checkBox, "flowx,cell 0 9 3 1,gapx indent");
 
         label = new JLabel("字段");
-        panel.add(label);
+        panel.add(label, "cell 0 9 3 1");
         labelCBox.setEnabled(checkBox.isSelected());
-        panel.add(labelCBox, "wrap");
+        panel.add(labelCBox, "cell 0 9 3 1");
         fontBtn.setEnabled(checkBox.isSelected());
-        panel.add(fontBtn, "wrap");
+        panel.add(fontBtn, "cell 0 10");
 
         /*
          * Apply and Cancel buttons
@@ -651,7 +671,16 @@ public class JSimpleStyleDialog extends JDialog {
                 setVisible(false);
             }
         });
-        panel.add(btn, "span, split 2, align right");
+        
+        button = new JButton("颜色...");
+        //设置字体颜色
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	chooseFontColor();
+            }
+        });
+        panel.add(button, "cell 2 10");
+        panel.add(btn, "cell 0 11 3 1,alignx right");
 
         btn = new JButton("取消");
         btn.addActionListener(new ActionListener() {
@@ -660,9 +689,12 @@ public class JSimpleStyleDialog extends JDialog {
                 setVisible(false);
             }
         });
-        panel.add(btn);
+        panel.add(btn, "cell 0 11 3 1");
 
         getContentPane().add(panel);
+        
+        lblFontColor = new JLabel("   ");
+        panel.add(lblFontColor, "cell 1 10");
         pack();
     }
 
@@ -873,6 +905,18 @@ public class JSimpleStyleDialog extends JDialog {
     private void chooseFillColor() {
         Color color = JColorChooser.showDialog(this, "Choose fill color", fillColor);
         setFillColorItems(color);
+    }
+    
+    /**
+     * 字体颜色
+     */
+    private void chooseFontColor(){
+    	 Color color = JColorChooser.showDialog(this, "选择字体颜色", fontColor);
+    	 if (color != null) {
+             fontColor = color;
+             lblFontColor.setBackground(color);
+             lblFontColor.repaint();
+         }
     }
 
     /**
