@@ -26,6 +26,7 @@ import org.geotools.geotools_swing.event.MapMouseEventDispatcher;
 import org.geotools.geotools_swing.event.MapMouseListener;
 import org.geotools.geotools_swing.event.MapPaintListener;
 import org.geotools.geotools_swing.event.MapPaneListener;
+import org.geotools.geotools_swing.plugins.Plugin;
 import org.geotools.geotools_swing.tools.CursorTool;
 import org.geotools.map.MapContent;
 import org.geotools.renderer.GTRenderer;
@@ -153,6 +154,20 @@ public interface MapPane {
 	 * @param listener
 	 */
 	public void removePaintListener(MapPaintListener listener);
+	
+	/**
+	 * 加入插件
+	 * 一个插件仅允许插入一次
+	 * @param plugin 插件
+	 */
+	public void addPlugin(Plugin plugin);
+	
+	/**
+	 * 移除插件
+	 * 一个插件仅允许插入一次
+	 * @param plugin 插件
+	 */
+	public void removePlugin(Plugin plugin);
 
 	/**
 	 * 获取当前的操作工具对象

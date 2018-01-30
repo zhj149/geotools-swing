@@ -28,6 +28,7 @@ import org.geotools.geotools_swing.event.MapMouseListener;
 import org.geotools.geotools_swing.event.MapPaintListener;
 import org.geotools.geotools_swing.event.MapPaneEvent;
 import org.geotools.geotools_swing.event.MapPaneListener;
+import org.geotools.geotools_swing.plugins.Plugin;
 import org.geotools.geotools_swing.tools.CursorTool;
 import org.geotools.map.Layer;
 import org.geotools.map.MapContent;
@@ -99,6 +100,11 @@ public class JMapCanvas extends JPanel implements MapPane, MapLayerListListener,
 	 * 绘制事件
 	 */
 	protected List<MapPaintListener> paintListeners = new LinkedList<>();
+	
+	/**
+	 * 插件列表
+	 */
+	protected List<Plugin> plugins = new LinkedList<>();
 
 	/**
 	 * 缓存(应该是标签)
@@ -665,6 +671,28 @@ public class JMapCanvas extends JPanel implements MapPane, MapLayerListListener,
 	@Override
 	public void removeMapPaneListener(MapPaneListener listener) {
 		this.paneListeners.remove(listener);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addPlugin(Plugin plugin){
+		if (!this.plugins.contains(plugin)){
+			this.plugins.add(plugin);
+			this.addPaintListener(plugin);
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removePlugin(Plugin plugin){
+		if (this.plugins.contains(plugin)){
+			this.plugins.remove(plugin);
+			this.removePaintListener(plugin);
+		}
 	}
 
 	/**
