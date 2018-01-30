@@ -52,7 +52,10 @@ public class PanTool extends AbstractZoomTool {
 	 */
 	private final Point endPos;
 
-	boolean panning;
+	/**
+	 * 是否拖动状态
+	 */
+	private volatile boolean panning = false;
 
 	/**
 	 * Constructor

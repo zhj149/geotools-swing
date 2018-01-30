@@ -23,8 +23,6 @@ import org.geotools.map.FeatureLayer;
 import org.geotools.map.Layer;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Fill;
-import org.geotools.styling.Graphic;
-import org.geotools.styling.Mark;
 import org.geotools.styling.Rule;
 import org.geotools.styling.Stroke;
 import org.geotools.styling.Style;
@@ -130,6 +128,7 @@ public class SelectFeatureTool extends AbstractZoomTool implements DragBoxMapPai
 	 */
 	@Override
 	public void onMouseDragged(MapMouseEvent ev) {
+		super.onMouseDragged(ev);
 		dragged = true;
 		endPosDevice.setLocation(ev.getPoint());
 		getMapPane().refresh();

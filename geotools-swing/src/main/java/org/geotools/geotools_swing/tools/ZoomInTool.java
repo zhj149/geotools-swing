@@ -127,6 +127,7 @@ public class ZoomInTool extends AbstractZoomTool implements DragBoxMapPaintListe
 	 */
 	@Override
 	public void onMouseDragged(MapMouseEvent ev) {
+		super.onMouseDragged(ev);
 		dragged = true;
 		endPosDevice.setLocation(ev.getPoint());
 		getMapPane().refresh();

@@ -4,11 +4,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.geom.AffineTransform;
 
 import org.apache.commons.lang3.StringUtils;
 import org.geotools.geotools_swing.MapPane;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * 标尺插件
@@ -47,8 +45,8 @@ public class ScalebarPlugin extends PluginBase {
 
 		Rectangle location = mapPane.getVisibleRectangle();
 
-//		if (inMeters == 0.0) {
-//			this.paint(g2d, location, "NaN");
+		if (inMeters == 0.0) {
+			this.paint(g2d, location, "NaN");
 //		} else {
 //			if (scalebarUnits == UnitPolicy.IMPERIAL) {
 //				result2 = calculateUnitAndLength(inMeters, location.width / crs. , Unit.MILE,
@@ -67,7 +65,7 @@ public class ScalebarPlugin extends PluginBase {
 //			int nice2 = unitMeasure2.getLeft();
 //			Unit measurement2 = unitMeasure2.getRight();
 //			doDraw(measurement2, context, trueBarLength2, nice2);
-//		}
+		}
 	}
 	
 //	public static Pair<Integer, Pair<Integer, Unit>> calculateUnitAndLength( double meterPerPixel,
@@ -123,7 +121,6 @@ public class ScalebarPlugin extends PluginBase {
 	 */
 	@Override
 	public void afterPaint(Graphics2D g2d, int dx, int dy) {
-
 	}
 
 }
