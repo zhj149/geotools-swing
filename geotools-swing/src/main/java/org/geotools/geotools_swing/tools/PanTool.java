@@ -75,6 +75,7 @@ public class PanTool extends AbstractZoomTool {
 	 */
 	@Override
 	public void onMousePressed(MapMouseEvent ev) {
+		super.onMousePressed(ev);
 		if (ev.getButton() == MouseEvent.BUTTON1) {
 			beginPos.setLocation(ev.getPoint());
 			endPos.setLocation(ev.getPoint());
@@ -91,6 +92,7 @@ public class PanTool extends AbstractZoomTool {
 	 */
 	@Override
 	public void onMouseDragged(MapMouseEvent ev) {
+		super.onMouseDragged(ev);
 		if (panning) {
 			endPos.setLocation(ev.getPoint());
 			if (!beginPos.equals(endPos)) {
@@ -108,6 +110,7 @@ public class PanTool extends AbstractZoomTool {
 	 */
 	@Override
 	public void onMouseReleased(MapMouseEvent ev) {
+		super.onMouseReleased(ev);
 		if (panning && !beginPos.equals(endPos)) {
 			getMapPane().move(endPos.x - beginPos.x, endPos.y - beginPos.y);
 		}

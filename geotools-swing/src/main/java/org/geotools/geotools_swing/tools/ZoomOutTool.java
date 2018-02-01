@@ -3,6 +3,7 @@ package org.geotools.geotools_swing.tools;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
 
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.Envelope2D;
@@ -72,24 +73,28 @@ public class ZoomOutTool extends AbstractZoomTool {
 	 */
 	@Override
 	public void onMouseClicked(MapMouseEvent ev) {
-		Rectangle paneArea = getMapPane().getVisibleRectangle();
-		DirectPosition2D mapPos = ev.getWorldPos();
-
-		double scale = getMapPane().getWorldToScreenTransform().getScaleX();
-		double newScale = scale / zoom;
 		
-		if (isNotZoomed(newScale))
-			return;
+		if (ev.getButton() == MouseEvent.BUTTON1) {
+			
+			Rectangle paneArea = getMapPane().getVisibleRectangle();
+			DirectPosition2D mapPos = ev.getWorldPos();
 
-		DirectPosition2D corner = new DirectPosition2D(mapPos.getX() - 0.5d * paneArea.getWidth() / newScale,
-				mapPos.getY() + 0.5d * paneArea.getHeight() / newScale);
+			double scale = getMapPane().getWorldToScreenTransform().getScaleX();
+			double newScale = scale / zoom;
 
-		Envelope2D newMapArea = new Envelope2D();
-		newMapArea.setFrameFromCenter(mapPos, corner);
-		getMapPane().setDisplayArea(newMapArea);
-		//然后平移到鼠标操作点
-		getMapPane().move((int) (ev.getX() - paneArea.getWidth() / 2),
-				(int) (ev.getY() - paneArea.getHeight() / 2));
+			if (isNotZoomed(newScale))
+				return;
+
+			DirectPosition2D corner = new DirectPosition2D(mapPos.getX() - 0.5d * paneArea.getWidth() / newScale,
+					mapPos.getY() + 0.5d * paneArea.getHeight() / newScale);
+
+			Envelope2D newMapArea = new Envelope2D();
+			newMapArea.setFrameFromCenter(mapPos, corner);
+			getMapPane().setDisplayArea(newMapArea);
+			// 然后平移到鼠标操作点
+			getMapPane().move((int) (ev.getX() - paneArea.getWidth() / 2),
+					(int) (ev.getY() - paneArea.getHeight() / 2));
+		}
 	}
 
 	/**

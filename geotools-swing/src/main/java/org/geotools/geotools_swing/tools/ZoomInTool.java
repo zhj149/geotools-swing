@@ -4,6 +4,7 @@ package org.geotools.geotools_swing.tools;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 
 import org.geotools.geometry.DirectPosition2D;
@@ -66,7 +67,7 @@ public class ZoomInTool extends AbstractZoomTool implements DragBoxMapPaintListe
 	@Override
 	public void setMapPane(MapPane pane) {
 		super.setMapPane(pane);
-		if (pane != null){
+		if (pane != null) {
 			pane.addPaintListener(this);
 		}
 	}
@@ -79,7 +80,7 @@ public class ZoomInTool extends AbstractZoomTool implements DragBoxMapPaintListe
 		super.unUsed();
 		this.getMapPane().removePaintListener(this);
 	}
-	
+
 	/**
 	 * Zoom in by the currently set increment, with the map centred at the
 	 * location (in world coords) of the mouse click
@@ -89,21 +90,24 @@ public class ZoomInTool extends AbstractZoomTool implements DragBoxMapPaintListe
 	 */
 	@Override
 	public void onMouseClicked(MapMouseEvent ev) {
-		Rectangle paneArea = getMapPane().getVisibleRectangle();
-		DirectPosition2D mapPos = ev.getWorldPos();
+		if (ev.getButton() == MouseEvent.BUTTON1) {
+			
+			Rectangle paneArea = getMapPane().getVisibleRectangle();
+			DirectPosition2D mapPos = ev.getWorldPos();
 
-		double scale = getMapPane().getWorldToScreenTransform().getScaleX();
-		double newScale = scale * zoom;
+			double scale = getMapPane().getWorldToScreenTransform().getScaleX();
+			double newScale = scale * zoom;
 
-		DirectPosition2D corner = new DirectPosition2D(mapPos.getX() - 0.5d * paneArea.getWidth() / newScale,
-				mapPos.getY() + 0.5d * paneArea.getHeight() / newScale);
+			DirectPosition2D corner = new DirectPosition2D(mapPos.getX() - 0.5d * paneArea.getWidth() / newScale,
+					mapPos.getY() + 0.5d * paneArea.getHeight() / newScale);
 
-		Envelope2D newMapArea = new Envelope2D();
-		newMapArea.setFrameFromCenter(mapPos, corner);
-		getMapPane().setDisplayArea(newMapArea);
-		//然后平移到鼠标操作点
-		getMapPane().move((int) (ev.getX() - paneArea.getWidth() / 2),
-				(int) (ev.getY() - paneArea.getHeight() / 2));
+			Envelope2D newMapArea = new Envelope2D();
+			newMapArea.setFrameFromCenter(mapPos, corner);
+			getMapPane().setDisplayArea(newMapArea);
+			// 然后平移到鼠标操作点
+			getMapPane().move((int) (ev.getX() - paneArea.getWidth() / 2),
+					(int) (ev.getY() - paneArea.getHeight() / 2));
+		}
 	}
 
 	/**
@@ -115,8 +119,12 @@ public class ZoomInTool extends AbstractZoomTool implements DragBoxMapPaintListe
 	 */
 	@Override
 	public void onMousePressed(MapMouseEvent ev) {
-		startPosDevice.setLocation(ev.getPoint());
-		startPosWorld.setLocation(ev.getWorldPos());
+		super.onMousePressed(ev);
+		if (ev.getButton() == MouseEvent.BUTTON1) {
+			dragged = true;
+			startPosDevice.setLocation(ev.getPoint());
+			startPosWorld.setLocation(ev.getWorldPos());
+		}
 	}
 
 	/**
@@ -128,9 +136,10 @@ public class ZoomInTool extends AbstractZoomTool implements DragBoxMapPaintListe
 	@Override
 	public void onMouseDragged(MapMouseEvent ev) {
 		super.onMouseDragged(ev);
-		dragged = true;
-		endPosDevice.setLocation(ev.getPoint());
-		getMapPane().refresh();
+		if (dragged) {
+			endPosDevice.setLocation(ev.getPoint());
+			getMapPane().refresh();
+		}
 	}
 
 	/**
@@ -142,6 +151,7 @@ public class ZoomInTool extends AbstractZoomTool implements DragBoxMapPaintListe
 	 */
 	@Override
 	public void onMouseReleased(MapMouseEvent ev) {
+		super.onMouseReleased(ev);
 		if (dragged && !ev.getPoint().equals(startPosDevice)) {
 			Envelope2D env = new Envelope2D();
 			env.setFrameFromDiagonal(startPosWorld, ev.getWorldPos());
