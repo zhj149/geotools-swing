@@ -138,7 +138,7 @@ public class ScalebarPlugin extends PluginBase {
 		double pixelPerDistance = distance / location.getWidth(); // 每个像素代表的距离
 		double max = maxPixels * pixelPerDistance;
 		
-		if (max < 0.5) return;
+		if (max < 0.25) return;
 
 		Pair<Integer, String> ruler = rulers.get(max);
 		g2d.setFont(font);
@@ -146,12 +146,18 @@ public class ScalebarPlugin extends PluginBase {
 		int sWidth = fontMetrics.stringWidth(ruler.getValue());
 		int x = (int)(ruler.getKey() / pixelPerDistance);
 		int iX = location.width - (int) x - 5;
-		int iY = location.height - 20;
+		int iY = location.height - 10;
 
 		g2d.setColor(Color.WHITE);
-		g2d.drawString(ruler.getValue(), iX + ((int) x - sWidth) / 2, iY - 2);
-		g2d.drawLine(iX, iY, location.width - 5, iY);
-
+		int x2 = location.width - 5;
+		int i = (iX + x2) / 2;
+		
+		g2d.drawString(ruler.getValue(), iX + ((int) x - sWidth) / 2, iY - 7);
+		g2d.drawLine(iX, iY,x2 , iY);
+		//以下是画3个小短线
+		g2d.drawLine(iX, iY, iX, iY - 5);
+		g2d.drawLine(i, iY, i, iY - 5);
+		g2d.drawLine(x2, iY, x2, iY - 5);
 	}
 
 	/**
