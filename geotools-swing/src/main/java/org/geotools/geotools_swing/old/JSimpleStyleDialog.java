@@ -308,7 +308,6 @@ public class JSimpleStyleDialog extends JDialog {
                             dialog.getLabelField(),
                             dialog.getLabelFont(),
                             dialog.getFontColor());
-                    
                     break;
 			default:
 				break;

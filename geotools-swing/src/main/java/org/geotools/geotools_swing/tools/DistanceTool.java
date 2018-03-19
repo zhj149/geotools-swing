@@ -172,6 +172,7 @@ public class DistanceTool extends AbstractZoomTool implements MapPaintListener {
 			ptBeginSrc.setLocation(beginPos.getX(), beginPos.getY());
 			ptEndSrc.setLocation(movePos.getX(), movePos.getY());
 			distance = movePos.distance(beginPos) * 100;
+			
 		} else {
 
 			if (this.endPos == null)

@@ -1,5 +1,7 @@
 package org.geotools.geotools_swing.action;
 
+import javax.swing.ImageIcon;
+
 import org.geotools.geotools_swing.MapPane;
 import org.geotools.geotools_swing.tools.ZoomInTool;
 
@@ -20,6 +22,9 @@ public class ZoomInAction extends AbstractMapAction {
 	 */
 	public ZoomInAction(MapPane mapPane) {
 		super(mapPane);
+		this.putValue(SMALL_ICON, new ImageIcon(this.getClass().getResource("/mActionZoomIn.png")));
+		this.putValue(NAME, "");
+		this.putValue(SHORT_DESCRIPTION, "放大");
 	}
 
 	@Override

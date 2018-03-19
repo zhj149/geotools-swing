@@ -19,12 +19,12 @@ import org.geotools.styling.Style;
 
 
 /**
- * 导入shp文件的操作
+ * 导入svg文件的操作
  * 
  * @author sam
  *
  */
-public class OpenShpLayerAction extends AbstractMapAction {
+public class OpenSVGAction extends AbstractMapAction {
 
 	private static final long serialVersionUID = 1L;
 
@@ -33,7 +33,7 @@ public class OpenShpLayerAction extends AbstractMapAction {
 	 * 
 	 * @param mapPane
 	 */
-	public OpenShpLayerAction(MapPane mapPane) {
+	public OpenSVGAction(MapPane mapPane) {
 		super(mapPane);
 		this.putValue(SMALL_ICON, new ImageIcon(this.getClass().getResource("/mOpenLayer.png")));
 		this.putValue(NAME, "");
@@ -81,7 +81,7 @@ public class OpenShpLayerAction extends AbstractMapAction {
 			FeatureLayer layer = new FeatureLayer(cache, style , file.getName().substring(0 , file.getName().lastIndexOf(".")));
 
 			this.getMapPane().getMapContent().addLayer(layer);
-			this.getMapPane().repaint(false);
+			this.getMapPane().repaint(true);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}		

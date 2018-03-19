@@ -1,5 +1,7 @@
 package org.geotools.geotools_swing.action;
 
+import javax.swing.ImageIcon;
+
 import org.geotools.geotools_swing.MapPane;
 import org.geotools.geotools_swing.tools.DistanceTool;
 
@@ -20,6 +22,9 @@ public class DistanceAction extends AbstractMapAction {
 	 */
 	public DistanceAction(MapPane mapPane) {
 		super(mapPane);
+		this.putValue(SMALL_ICON, new ImageIcon(this.getClass().getResource("/distance.png")));
+		this.putValue(NAME, "");
+		this.putValue(SHORT_DESCRIPTION, "测距工具");
 	}
 
 	@Override

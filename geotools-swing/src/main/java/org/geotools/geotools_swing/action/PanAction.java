@@ -1,5 +1,7 @@
 package org.geotools.geotools_swing.action;
 
+import javax.swing.ImageIcon;
+
 import org.geotools.geotools_swing.MapPane;
 import org.geotools.geotools_swing.tools.PanTool;
 
@@ -20,6 +22,9 @@ public class PanAction extends AbstractMapAction {
 	 */
 	public PanAction(MapPane mapPane) {
 		super(mapPane);
+		this.putValue(SMALL_ICON, new ImageIcon(this.getClass().getResource("/pan_mode.gif")));
+		this.putValue(NAME, "");
+		this.putValue(SHORT_DESCRIPTION, "拖动");
 	}
 
 	@Override

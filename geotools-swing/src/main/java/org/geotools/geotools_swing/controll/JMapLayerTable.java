@@ -17,10 +17,12 @@ import org.geotools.geotools_swing.MapPane;
 import org.geotools.geotools_swing.event.MapPaneEvent;
 import org.geotools.geotools_swing.event.MapPaneListener;
 import org.geotools.geotools_swing.old.JSimpleStyleDialog;
+import org.geotools.map.FeatureLayer;
 import org.geotools.map.Layer;
-import org.geotools.map.StyleLayer;
+import org.geotools.map.event.MapLayerEvent;
 import org.geotools.map.event.MapLayerListEvent;
 import org.geotools.map.event.MapLayerListListener;
+import org.geotools.map.event.MapLayerListener;
 import org.geotools.styling.Style;
 import org.jdesktop.swingx.JXTable;
 import org.sam.swing.resource.ResourceLoader;
@@ -28,10 +30,12 @@ import org.sam.swing.table.JSTableBuilder;
 import org.sam.swing.table.JSTableColumn;
 import org.sam.swing.table.JSTableColumnModel;
 import org.sam.swing.table.JSTableModel;
+import org.sam.swing.table.JSTableModelEvent;
 import org.sam.swing.table.defaultImpl.JSTableDefaultBuilderImpl;
 import org.sam.swing.table.defaultImpl.JSTableModelDefaultAdapter;
 import org.sam.swing.table.editor.JSTableCheckboxEditor;
 import org.sam.swing.table.editor.JSTableImageButtonEditor;
+import org.sam.swing.table.header.JSTableHeader;
 import org.sam.swing.table.header.JSTableHeaderCheckboxRenderer;
 import org.sam.swing.table.renderer.JSTableCheckboxRenderer;
 import org.sam.swing.table.renderer.JSTableImageButtonRenderer;
@@ -67,13 +71,36 @@ public class JMapLayerTable extends JPanel implements MapListener, MapPaneListen
 	private MapPane mapPane;
 
 	/**
+	 * 图层操作
+	 */
+	private MapLayerListener mapLayerListener;
+
+	/**
+	 * 执行图层的操作事件接口
+	 * 
+	 * @return
+	 */
+	public MapLayerListener getMapLayerListener() {
+		return mapLayerListener;
+	}
+
+	/**
+	 * 执行图层的操作事件接口
+	 * 
+	 * @param mapLayerListener
+	 */
+	public void setMapLayerListener(MapLayerListener mapLayerListener) {
+		this.mapLayerListener = mapLayerListener;
+	}
+
+	/**
 	 * 初始化控件显示
 	 * 
 	 * @param mapPane
 	 */
 	public JMapLayerTable(MapPane mapPane) {
-		this.initCompenets();
 		this.setMapPane(mapPane);
+		this.initCompenets();
 	}
 
 	/**
@@ -98,6 +125,7 @@ public class JMapLayerTable extends JPanel implements MapListener, MapPaneListen
 		JSTableCheckboxRenderer cbxRenderer = new JSTableCheckboxRenderer();
 		column0.setCellRenderer(cbxRenderer);
 		JCheckBox checkbox = new JCheckBox();
+		checkbox.setOpaque(true);
 		checkbox.setHorizontalAlignment(JCheckBox.CENTER);
 		column0.setCellEditor(new JSTableCheckboxEditor(checkbox));
 		// 表头改为checkbox风格
@@ -135,6 +163,17 @@ public class JMapLayerTable extends JPanel implements MapListener, MapPaneListen
 		column2.setDefaultValue(false);
 		column2.setCellRenderer(cbxRenderer);
 		JCheckBox editcheckbox = new JCheckBox();
+		editcheckbox.setOpaque(true);
+		editcheckbox.addActionListener(e -> {
+			if (this.mapLayerListener != null) {
+				try {
+					Layer layer = (Layer) this.tableModel.getData(table.convertRowIndexToModel(table.getSelectedRow()));
+					this.mapLayerListener.layerSelected(new MapLayerEvent(layer, MapLayerEvent.SELECTION_CHANGED));
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
 		editcheckbox.setHorizontalAlignment(JCheckBox.CENTER);
 		column2.setCellEditor(new JSTableCheckboxEditor(editcheckbox));
 
@@ -156,21 +195,27 @@ public class JMapLayerTable extends JPanel implements MapListener, MapPaneListen
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
-			if (layer instanceof StyleLayer) {
-				StyleLayer styleLayer = (StyleLayer) layer;
-				Style style = JSimpleStyleDialog.showDialog(this, styleLayer);
-				if (style != null) {
-					styleLayer.setStyle(style);
-				}
+			FeatureLayer styleLayer = (FeatureLayer) layer;
+			Style style = JSimpleStyleDialog.showDialog(this, styleLayer);
+			if (style != null) {
+				styleLayer.setStyle(style);
+				tableModel.setValueAt(style, table.convertRowIndexToModel(table.getSelectedRow()), column3.getModelIndex());
 			}
 		});
 
 		JSTableBuilder<Collection<Layer>> builder = new JSTableDefaultBuilderImpl<>(Layer.class, column0, column1,
 				column2, column3);
 		try {
-			table = builder.buildTable();
-			tableModel = builder.getTableModel();
+			tableModel = builder.buildTableModel();
+			tableColumnModel = builder.buildTableColumnModel();
+			table = new JXTable(tableModel, tableColumnModel);
 			tableModel.setTableModelLinster(new JSTableModelDefaultAdapter<Layer>() {
+
+				
+				@Override
+				public void beforRetrieve(JSTableModelEvent event) throws Exception {
+					tableModel.removeAll();
+				}
 
 				/**
 				 * 检索数据
@@ -181,8 +226,11 @@ public class JMapLayerTable extends JPanel implements MapListener, MapPaneListen
 				}
 
 			});
-			tableColumnModel = builder.getTableColumnModel();
 			tableModel.setEditable(true);
+			table.setTableHeader(new JSTableHeader(tableColumnModel));
+			table.setSortable(false);
+			table.setShowGrid(false);
+			table.setRowHeight(25);
 			tableModel.retrieve();
 
 			this.add(new JScrollPane(table), BorderLayout.CENTER);
@@ -212,6 +260,40 @@ public class JMapLayerTable extends JPanel implements MapListener, MapPaneListen
 			this.mapPane.addMapPaneListener(this);
 			this.mapPane.getMapContent().addMapLayerListListener(this);
 		}
+	}
+
+	/**
+	 * 清空图层
+	 */
+	public void clear() {
+		try {
+			this.tableModel.clear();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 更新一行数据
+	 * 
+	 * @param layer
+	 *            图层
+	 */
+	public void updateEdit(Layer layer) {
+		if (layer == null)
+			return;
+
+		try {
+			int index = this.tableModel.findIndexOf(layer);
+			if (index < 0)
+				return;
+
+			this.tableModel.setValueAt(layer.isSelected(), index, 2);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	/**
@@ -298,10 +380,10 @@ public class JMapLayerTable extends JPanel implements MapListener, MapPaneListen
 	 */
 	@Override
 	public void layerChanged(MapLayerListEvent event) {
-		try {
+		try{
 			tableModel.retrieve();
-		} catch (Exception e) {
-			e.printStackTrace();
+		}catch(Exception ex){
+			ex.printStackTrace();
 		}
 	}
 
@@ -310,10 +392,10 @@ public class JMapLayerTable extends JPanel implements MapListener, MapPaneListen
 	 */
 	@Override
 	public void layerMoved(MapLayerListEvent event) {
-		try {
+		try{
 			tableModel.moveRow(event.getFromIndex(), event.getToIndex());
-		} catch (Exception e) {
-			e.printStackTrace();
+		}catch(Exception ex){
+			ex.printStackTrace();
 		}
 	}
 

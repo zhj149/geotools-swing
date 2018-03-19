@@ -1,11 +1,11 @@
 package org.geotools.geotools_swing.controll;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JToolBar;
 
 import org.geotools.geotools_swing.MapListener;
 import org.geotools.geotools_swing.MapPane;
+import org.geotools.geotools_swing.action.DistanceAction;
 import org.geotools.geotools_swing.action.OpenShpLayerAction;
 import org.geotools.geotools_swing.action.PanAction;
 import org.geotools.geotools_swing.action.RestAction;
@@ -57,64 +57,66 @@ public class JMapToolBar extends JToolBar implements MapListener {
 	/**
 	 * 拖动操作
 	 */
-	public JButton panAction;
+	private JButton btnPan;
 
 	/**
 	 * 恢复地图初始状态
 	 */
-	public JButton resetAction;
+	private JButton btnReset;
 
 	/**
 	 * 放大操作
 	 */
-	public JButton zoominAction;
+	private JButton btnZoomIn;
 
 	/**
 	 * 缩小操作
 	 */
-	public JButton zoomoutAction;
+	private JButton btnZoomOut;
 	
 	/**
 	 * shape文件操作对象
 	 */
-	public JButton shpAction;
+	private JButton btnShp;
+	
+	/**
+	 * 测距工具
+	 */
+	private JButton btnDistance;
 
 	/**
 	 * 初始化控件
 	 */
 	private void initCompents() {
-		RestAction restHandler = new RestAction(this.canvas);
-		ZoomInAction zoomInHandler = new ZoomInAction(this.canvas);
-		ZoomOutAction zoomOutHandler = new ZoomOutAction(this.canvas);
-		PanAction paneHandler = new PanAction(this.canvas);
-		OpenShpLayerAction shpHandler = new OpenShpLayerAction(this.canvas);
 
 		// reset按钮
-		resetAction = new JButton("", new ImageIcon(this.getClass().getResource("/mActionZoomFullExtent.png")));
-		resetAction.addActionListener(restHandler);
-		this.add(resetAction);
+		btnReset = new JButton(new RestAction(this.canvas));
+		add(btnReset);
 
 		// 放大按钮
-		zoominAction = new JButton("", new ImageIcon(this.getClass().getResource("/mActionZoomIn.png")));
-		zoominAction.addActionListener(zoomInHandler);
-		this.add(zoominAction);
+		btnZoomIn = new JButton(new ZoomInAction(this.canvas));
+		add(btnZoomIn);
 
 		// 放大按钮
-		zoomoutAction = new JButton("", new ImageIcon(this.getClass().getResource("/mActionZoomOut.png")));
-		zoomoutAction.addActionListener(zoomOutHandler);
-		this.add(zoomoutAction);
+		btnZoomOut = new JButton(new ZoomOutAction(this.canvas));
+		this.add(btnZoomOut);
 
 		// 拖动按钮
-		panAction = new JButton("", new ImageIcon(this.getClass().getResource("/pan_mode.gif")));
-		panAction.addActionListener(paneHandler);
-		this.add(panAction);
+		btnPan = new JButton(new PanAction(this.canvas));
+		this.add(btnPan);
 
+		// 加入华丽的分割线
+		this.addSeparator();
+		
+		//测距工具
+		btnDistance = new JButton(new DistanceAction(canvas));
+		this.add(btnDistance);
+		
 		// 加入华丽的分割线
 		this.addSeparator();
 	
 		//以下是和数据操作相关的功能点
-		shpAction = new JButton("" , new ImageIcon(this.getClass().getResource("/mOpenLayer.png")));
-		shpAction.addActionListener(shpHandler);
-		this.add(shpAction);
+		btnShp = new JButton(new OpenShpLayerAction(this.canvas));
+		this.add(btnShp);
 	}
 }

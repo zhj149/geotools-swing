@@ -74,29 +74,29 @@ public class ScalebarPlugin extends PluginBase {
 	 * 初始化默认标尺表示范围
 	 */
 	static {
-		rulers.put(0.0, new Pair<Integer, String>(1, "1m"));
-		rulers.put(1.01, new Pair<Integer, String>(2, "2m"));
-		rulers.put(2.01, new Pair<Integer, String>(5, "5m"));
-		rulers.put(5.01, new Pair<Integer, String>(10, "10m"));
-		rulers.put(10.01, new Pair<Integer, String>(20, "20m"));
-		rulers.put(20.01, new Pair<Integer, String>(50, "50m"));
-		rulers.put(50.01, new Pair<Integer, String>(100, "100m"));
-		rulers.put(100.01, new Pair<Integer, String>(200, "200m"));
-		rulers.put(200.01, new Pair<Integer, String>(500, "500m"));
-		rulers.put(500.01, new Pair<Integer, String>(1000, "1km"));
-		rulers.put(1000.01, new Pair<Integer, String>(2000, "2km"));
-		rulers.put(2000.01, new Pair<Integer, String>(5000, "5km"));
-		rulers.put(5000.01, new Pair<Integer, String>(10000, "10km"));
-		rulers.put(10000.01, new Pair<Integer, String>(20000, "20km"));
-		rulers.put(20000.01, new Pair<Integer, String>(50000, "50km"));
-		rulers.put(50000.01, new Pair<Integer, String>(100000, "100km"));
-		rulers.put(100000.01, new Pair<Integer, String>(200000, "200km"));
-		rulers.put(200000.01, new Pair<Integer, String>(500000, "500km"));
-		rulers.put(500000.01, new Pair<Integer, String>(1000000, "1000km"));
-		rulers.put(1000000.01, new Pair<Integer, String>(2000000, "2000km"));
-		rulers.put(2000000.01, new Pair<Integer, String>(5000000, "5000km"));
-		rulers.put(5000000.01, new Pair<Integer, String>(10000000, "10000km"));
-		rulers.put(10000000.01, new Pair<Integer, String>(20000000, "20000km"));
+		rulers.put(0.0, new Pair<Integer, String>(1, "1 m"));
+		rulers.put(1.01, new Pair<Integer, String>(2, "2 m"));
+		rulers.put(2.01, new Pair<Integer, String>(5, "5 m"));
+		rulers.put(5.01, new Pair<Integer, String>(10, "10 m"));
+		rulers.put(10.01, new Pair<Integer, String>(20, "20 m"));
+		rulers.put(20.01, new Pair<Integer, String>(50, "50 m"));
+		rulers.put(50.01, new Pair<Integer, String>(100, "100 m"));
+		rulers.put(100.01, new Pair<Integer, String>(200, "200 m"));
+		rulers.put(200.01, new Pair<Integer, String>(500, "500 m"));
+		rulers.put(500.01, new Pair<Integer, String>(1000, "1 Km"));
+		rulers.put(1000.01, new Pair<Integer, String>(2000, "2 Km"));
+		rulers.put(2000.01, new Pair<Integer, String>(5000, "5 Km"));
+		rulers.put(5000.01, new Pair<Integer, String>(10000, "10 Km"));
+		rulers.put(10000.01, new Pair<Integer, String>(20000, "20 Km"));
+		rulers.put(20000.01, new Pair<Integer, String>(50000, "50 Km"));
+		rulers.put(50000.01, new Pair<Integer, String>(100000, "100 Km"));
+		rulers.put(100000.01, new Pair<Integer, String>(200000, "200 Km"));
+		rulers.put(200000.01, new Pair<Integer, String>(500000, "500 Km"));
+		rulers.put(500000.01, new Pair<Integer, String>(1000000, "1000 Km"));
+		rulers.put(1000000.01, new Pair<Integer, String>(2000000, "2000 Km"));
+		rulers.put(2000000.01, new Pair<Integer, String>(5000000, "5000 Km"));
+		rulers.put(5000000.01, new Pair<Integer, String>(10000000, "10000 Km"));
+		rulers.put(10000000.01, new Pair<Integer, String>(20000000, "20000 Km"));
 	}
 
 	/**

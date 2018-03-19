@@ -1,5 +1,7 @@
 package org.geotools.geotools_swing.action;
 
+import javax.swing.ImageIcon;
+
 import org.geotools.geotools_swing.MapPane;
 
 /**
@@ -19,6 +21,9 @@ public class RestAction extends AbstractMapAction {
 	 */
 	public RestAction(MapPane mapPane) {
 		super(mapPane);
+		this.putValue(SMALL_ICON, new ImageIcon(this.getClass().getResource("/mActionZoomFullExtent.png")));
+		this.putValue(NAME, "");
+		this.putValue(SHORT_DESCRIPTION, "重置");
 	}
 	
 	@Override
